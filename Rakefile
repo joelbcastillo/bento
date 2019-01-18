@@ -1,125 +1,86 @@
-require "json"
 require "yaml"
+require "fileutils"
 
-# TODO:  private boxes may need to specify a mirror
+# we load the bento gem here just so we can make sure it was installed
+begin
+  require "bento"
+rescue LoadError
+  puts "bento-ya gem does't appear to be installed. Either install the gem or bundle install first."
+  exit!
+end
 
-# Enables `bundle exec rake do_all[ubuntu-12.04-amd64,centos-7.1-x86_64]
-# http://blog.stevenocchipinti.com/2013/10/18/rake-task-with-an-arbitrary-number-of-arguments/
-builds = YAML.load(File.read("builds.yml"))
-
-desc "Do ALL THE THINGS"
+desc "clean, build, test, upload"
 task :do_all do
-  # build stage
-  builds["public"].each do |platform, versions|
-    versions.each do |version, archs|
-      archs.each do |arch|
-        builds["providers"].each do |provider|
-          # build stage
-          Rake::Task["build_box"].invoke("#{platform}-#{version}-#{arch}", "#{provider}")
-          Rake::Task["build_box"].reenable
-          puts "#{platform}-#{version}-#{arch}, #{provider}"
-          # verification stage
-          Rake::Task["test_all"].invoke
-          Rake::Task["test_all"].reenable
-          # publish stage
-          Rake::Task["upload_all"].invoke
-          Rake::Task["upload_all"].reenable
-          # release stage
-          Rake::Task["release_all"].invoke
-          Rake::Task["release_all"].reenable
-          # clean stage
-          Rake::Task["clean"].invoke
-          Rake::Task["clean"].reenable
-        end
+  check_env
+  public_templates.each do |template|
+    if config['public'].include?(box_name(template))
+      Rake::Task[:clean].execute
+      sh build_cmd(template)
+      sh "bento test"
+      unless ENV["BENTO_AUTO_RELEASE"].nil?
+        sh "bento upload"
+        sh "bento release #{template} #{ENV["BENTO_VERSION"]}"
       end
     end
   end
 end
 
-desc "Test all boxes with Test Kitchen"
-task :test_all do
-  sh "bento test -f"
-end
-
-desc "Upload all boxes to Atlas for all providers"
-task :upload_all do
-  sh "bento upload"
-end
-
-desc "Release all"
 task :release_all do
-  metadata_files.each do |metadata_file|
-    metadata = box_metadata(metadata_file)
-    Rake::Task["release"].invoke(metadata["name"], metadata["version"])
-    Rake::Task["release"].reenable
+  config['public'].each do |template|
+    sh "bento release #{template} #{ENV["BENTO_VERSION"]}"
   end
 end
 
-desc "Build a bento template"
-task :build_box, :template, :provider do |_, args|
-  bento_provider = ENV["BENTO_PROVIDERS"] ? ENV["BENTO_PROVIDERS"] : args[:provider]
-  if bento_provider.nil?
-    puts "Invalid build arguments. Either set BENTO_PROVIDERS in ENV or pass provider argument. Example: rake build_box[debian-8.7-amd64, virtualbox-iso]"
+desc "clean"
+task :clean do
+  puts "Removing .kitchen.yml and builds/*"
+  FileUtils.rm_rf(['.kitchen.yml', Dir.glob('builds/*')])
+end
+
+def build_cmd(template)
+  cmd = %W{bento build #{template}}
+  cmd.insert(2, "--only #{providers}")
+  cmd.insert(2, "--mirror #{ENV['PACKER_MIRROR']}") if ENV["PACKER_MIRROR"]
+  cmd.insert(2, "--version #{ENV['BENTO_VERSION']}")
+  cmd.join(" ")
+  a_to_s(cmd)
+end
+
+def check_env
+  if ENV["BENTO_VERSION"].nil?
+    puts "Please set the BENTO_VERSION env variable"
     exit 1
   end
-  cmd = %W{bento build #{args[:template]}}
-  cmd.insert(2, "--only #{bento_provider}")
-  cmd.insert(2, "--mirror #{ENV['PACKER_MIRROR']}") if ENV["PACKER_MIRROR"]
-  cmd.insert(2, "--version #{ENV['BENTO_VERSION']}") if ENV["BENTO_VERSION"]
-  cmd.insert(2, "--headless")
-  cmd.join(" ")
-  sh a_to_s(cmd)
 end
 
-desc "Release a version of a box"
-task :release, [:boxname, :version] do |_, args|
-  sh "bento release #{args[:boxname]} #{args[:version]}"
-end
-
-desc "Revoke a version of a box"
-task :revoke, [:boxname, :version] do |_, args|
-  sh "bento revoke #{args[:boxname]} #{args[:version]}"
-end
-
-desc "Delete a version of a box"
-task :delete, [:boxname, :version] do |_, args|
-  sh "bento delete #{args[:boxname]} #{args[:version]}"
-end
-
-desc "Clean the build directory"
-task :clean do
-  puts "Cleaning up..."
-  `rm -rf builds/*.json builds/*.box packer-* .kitchen.*.yml`
+def providers
+  if config['providers']
+    config['providers'].join(',')
+  else
+    puts "No Providers Specified."
+    puts "Set `providers` in builds.yml"
+    exit 1
+  end
 end
 
 def a_to_s(*args)
   clean_array(*args).join(" ")
 end
 
+def config
+  YAML.load(File.read("builds.yml"))
+end
+
 def clean_array(*args)
   args.flatten.reject { |i| i.nil? || i == "" }.map(&:to_s)
 end
 
-def box_metadata(metadata_file)
-  metadata = {}
-  file = File.read(metadata_file)
-  json = JSON.parse(file)
-
-  # metadata needed for upload:  boxname, version, provider, box filename
-  metadata["name"] = json["name"]
-  metadata["version"] = json["version"]
-  metadata["box_basename"] = json["box_basename"]
-  metadata["providers"] = {}
-  json["providers"].each do |provider|
-    metadata["providers"][provider["name"]] = provider.reject { |k, _| k == "name" }
-  end
-  metadata
+def box_name(template)
+  bn = template.split('/')[1].gsub!(/\.json/,'')
+  bn.match(/-x86_64|-amd64/) ? bn.gsub(/-x86_64|-amd64/,'') : bn
 end
 
-def metadata_files
-  @metadata_files ||= compute_metadata_files
-end
-
-def compute_metadata_files
-  `ls builds/*.json`.split("\n")
+def public_templates
+  templates = Dir.glob('**/*.json').reject{ |d| d['builds'] }
+  templates.reject{ |f| f[/macos|rhel|sles|solaris|windows/] }
 end

@@ -1,83 +1,44 @@
 ---
-providers:
-  - parallels-iso
-  - virtualbox-iso
-  - vmware-iso
-
 public:
-  centos:
-    '5.11':
-    - x86_64
-    - i386
-    '6.8':
-    - x86_64
-    - i386
-    '7.3':
-    - x86_64
-  debian:
-    '7.11':
-    - amd64
-    - i386
-    '8.7':
-    - amd64
-    - i386
-  fedora:
-    '24':
-    - x86_64
-    '25':
-    - x86_64
-  freebsd:
-    '10.3':
-    - amd64
-    '11.0':
-    - amd64
-  omnios:
-    r151018:
-    - amd64
-  opensuse-leap:
-    '42.2':
-    - x86_64
-  oracle:
-    '5.11':
-    - x86_64
-    - i386
-    '6.8':
-    - x86_64
-    - i386
-    '7.3':
-    - x86_64
-  ubuntu:
-    '12.04':
-    - amd64
-    - i386
-    '14.04':
-    - amd64
-    - i386
-    '16.04':
-    - amd64
-    - i386
-    '16.10':
-    - amd64
-    - i386
+- 'centos-5.11-i386'
+- 'centos-5.11'
+- 'centos-6.10-i386'
+- 'centos-6.10'
+- 'centos-7.6'
+- 'debian-8.11-i386'
+- 'debian-8.11'
+- 'debian-9.6-i386'
+- 'debian-9.6'
+- 'fedora-28'
+- 'fedora-29'
+- 'freebsd-11.2-i386'
+- 'freebsd-11.2'
+- 'freebsd-12.0-i386'
+- 'freebsd-12.0'
+- 'hardenedbsd-11'
+- 'opensuse-leap-15.0'
+- 'opensuse-leap-42.3'
+- 'oracle-6.10-i386'
+- 'oracle-6.10'
+- 'oracle-7.6'
+- 'ubuntu-14.04-i386'
+- 'ubuntu-14.04'
+- 'ubuntu-16.04-i386'
+- 'ubuntu-16.04'
+- 'ubuntu-18.04'
 
-private:
-  rhel:
-    '5.11':
-    - x86_64
-    - i386
-    '6.8':
-    - x86_64
-    - i386
-    '7.3':
-    - x86_64
+slugs:
+  'centos-7': 'centos-7.6'
+  'centos-6': 'centos-6.10'
+  'centos-5': 'centos-5.11'
+  'debian-9': 'debian-9.6'
+  'debian-8': 'debian-8.11'
+  'oracle-7': 'oracle-7.6'
+  'oracle-6': 'oracle-6.10'
+  'freebsd-11': 'freebsd-11.2'
+  'freebsd-12': 'freebsd-12.0'
+  'opensuse-leap-42': 'opensuse-leap-42.3'
+  'opensuse-leap-15': 'opensuse-leap-15.0'
 
-broken:
-  - omnios-r151018-vmware-iso
-  - omnios-r151018-parallels-iso
-  - opensuse-leap-42.1-x86_64-parallels-iso
-
-no_shared_folder:
-  - freebsd-11.0-amd64-all
-  - freebsd-10.3-amd64-all
-  - freebsd-9.3-amd64-all
-  - omnios-r151018-all
+providers:
+- virtualbox-iso
