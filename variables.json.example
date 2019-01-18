@@ -1,0 +1,7 @@
+{
+    "proxy_port": 8080,
+    "proxy_hostname": "<PROXY_HOSTNAME>",
+    "rhsn_computer_name": "bento_box",
+    "rhsn_username": "<RHSN_USERNAME>",
+    "rhsn_password": "<RHSN_PASSWORD>"
+}

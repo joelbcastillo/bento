@@ -6,9 +6,9 @@ packer_cache
 packer.log
 .DS_Store
 /packer-*/
-*.variables.json
+*variables.json
 /builds/
 .kitchen
 .kitchen.yml
 Gemfile.lock
-bootstrap.sh
+bootstrap.shs

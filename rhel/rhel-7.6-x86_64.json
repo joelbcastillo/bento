@@ -133,7 +133,10 @@
       "https_proxy={{ user `http_proxy`}}",
       "no_proxy={{ user `no_proxy` }}",
       "proxy_hostname={{ user `http_proxy_hostname` }}",
-      "proxy_port={{ user `http_proxy_port` }}"
+      "proxy_port={{ user `http_proxy_port` }}",
+      "RHSN_COMPUTER_NAME={{ user `rhsn_computer_name`}}",
+      "RHSN_PASSWORD={{ user `rhsn_password`}}",
+      "RHSN_USERNAME={{ user `rhsn_username`}}"
     ],
     "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
     "expect_disconnect": true,
@@ -172,7 +175,11 @@
     "no_proxy": "{{env `no_proxy`}}",
     "proxy_hostname": "{{ env `proxy_hostname`}}",
     "proxy_port": "{{ env `proxy_port`}}",
+    "rhsn_computer_name": "{{ env `rhsn_computer_name`}}",
+    "rhsn_password": "{{ env `rhsn_password`}}",
+    "rhsn_username": "{{ env `rhsn_username`}}",
     "template": "rhel-7.6-x86_64",
     "version": "TIMESTAMP"
-  }
+  },
+  "sensitive-variables": ["rhsn_password"]
 }

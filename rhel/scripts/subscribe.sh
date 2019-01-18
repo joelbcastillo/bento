@@ -6,7 +6,7 @@
 #
 # Usage
 #
-#	./subscribe.sh -u USERNAME -p PASSWORD -n COMPUTER-NAME
+#	./subscribe.sh -u RHSN_USERNAME -p RHSN_PASSWORD -n RHSN_COMPUTER_NAME
 #
 # This script will:
 # - Register the system with your Red Hat Developer account
@@ -20,9 +20,9 @@
 # VARIABLES
 RHEL_6="6."
 RHEL_7="7."
-username=""
-password=""
-computer_name=""
+rhsn_username=""
+rhsn_password=""
+rhsn_computer_name=""
 
 usage() {
 	cat <<EOF
@@ -50,23 +50,23 @@ set_variable() {
 
 while getopts 'upn:?h' opt; do
 	case $opt in
-	u) set_variable username "$OPTARG" ;;
-	p) set_variable password "$OPTARG" ;;
-	n) set_variable computer_name "$OPTARG" ;;
+	u) set_variable rhsn_username "$OPTARG" ;;
+	p) set_variable rhsn_password "$OPTARG" ;;
+	n) set_variable rhsn_computer_name "$OPTARG" ;;
 	h | ?) usage ;;
 	esac
 done
 
-username=${username:-USERNAME}
-password=${password:-USERNAME}
-computer_name=${computer_name:-COMPUTER_NAME}
+rhsn_username=${rhsn_username:-RHSN_USERNAME}
+rhsn_password=${rhsn_password:-RHSN_PASSWORD}
+rhsn_computer_name=${rhsn_computer_name:-RHSN_COMPUTER_NAME}
 
 # ensure running as root
 if [ "$(id -u)" != "0" ]; then
 	exec sudo "$0" "$@"
 fi
 
-subscription-manager register --username "$username" --password "$password" --name "$computer_name" --auto-attach --force
+subscription-manager register --username "$rhsn_password" --password "$rhsn_password" --name "$rhsn_computer_name" --auto-attach --force
 subscription-manager attach
 
 # shellcheck disable=SC2154 # This is checking to see if http_proxy is not null
