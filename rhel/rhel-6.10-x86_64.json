@@ -167,7 +167,7 @@
     "iso_name": "rhel-server-6.10-x86_64-dvd.iso",
     "ks_path": "6/ks.cfg",
     "memory": "1024",
-    "mirror": "http://YOU-MUST-PROVIDE-YOUR-OWN-ISO.sorry",
+    "mirror": "",
     "mirror_directory": "rhel",
     "name": "rhel-6.10",
     "no_proxy": "{{env `no_proxy`}}",
