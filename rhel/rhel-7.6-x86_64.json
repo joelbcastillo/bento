@@ -156,7 +156,7 @@
   }],
   "variables": {
     "arch": "64",
-    "box_basename": "rhel-7.6",
+    "box_basename": "rhel-7.6-{{env `vbox_version`}}",
     "build_timestamp": "{{isotime \"20060102150405\"}}",
     "cpus": "1",
     "disk_size": "65536",
