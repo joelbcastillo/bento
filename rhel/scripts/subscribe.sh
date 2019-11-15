@@ -57,16 +57,16 @@ while getopts 'upn:?h' opt; do
 	esac
 done
 
-rhsn_username=${rhsn_username:-RHSN_USERNAME}
-rhsn_password=${rhsn_password:-RHSN_PASSWORD}
-rhsn_computer_name=${rhsn_computer_name:-RHSN_COMPUTER_NAME}
+rhsn_username=${rhsn_username:-$RHSN_USERNAME}
+rhsn_password=${rhsn_password:-$RHSN_PASSWORD}
+rhsn_computer_name=${rhsn_computer_name:-$RHSN_COMPUTER_NAME}
 
 # ensure running as root
 if [ "$(id -u)" != "0" ]; then
 	exec sudo "$0" "$@"
 fi
 
-subscription-manager register --username "$rhsn_password" --password "$rhsn_password" --name "$rhsn_computer_name" --auto-attach --force
+subscription-manager register --username "$rhsn_username" --password "$rhsn_password" --name "$rhsn_computer_name" --auto-attach --force
 subscription-manager attach
 
 # shellcheck disable=SC2154 # This is checking to see if http_proxy is not null
